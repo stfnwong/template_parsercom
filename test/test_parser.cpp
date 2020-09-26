@@ -10,12 +10,12 @@
 // unit(s) under test 
 #include "parser.hpp"
 
-TEST_CASE("test_print", "[classic]")
-{
-    pcprintf("testint=%d"_stream, 5);
-}
-
-//TEST_CASE("test_init_parser", "[classic]")
+//TEST_CASE("test_print", "[classic]")
 //{
-//    using hello_word = decltype("Does this work?"_stream);
+//    pcprintf("testint=%d"_stream, 5);
 //}
+
+TEST_CASE("test_init_parser", "[classic]")
+{
+    using hello_word = decltype("Does this work?"_stream);
+}
