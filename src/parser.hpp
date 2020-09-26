@@ -53,9 +53,9 @@ template <typename i, typename pos> struct State
 
 enum class ResultType
 {
-    PC_SUCCESS,
-    PC_FAILURE,
-    PC_ERROR
+    SUCCESS,
+    FAILURE,
+    ERROR
 };
 
 template <ResultType rt, typename X, typename S> struct Result
@@ -83,6 +83,16 @@ struct Printer<ExpectError<pos, expected, found>>
     }
 };
 
+/*
+ * IDENTITY
+ * Metafunction that binds template argument to type parameter to return a
+ * constant value.
+ */
+template <typename T> struct Identity
+{
+    using type = T;
+};
+
 
 /*
  * ALWAYS PARSER
@@ -90,26 +100,39 @@ struct Printer<ExpectError<pos, expected, found>>
  */
 template <typename T> struct Always
 {
-    template <typename state> struct apply
-    {
-        using type = Result<ResultType>::Success, T, state>;
-    };
+    template <typename state> using apply = Identity<Result<ResultType::SUCCESS, T, state>>;
 };
 
+/*
+ * NEVER PARSER
+ * Inverse of Always parser.
+ */
+template <typename T> struct Never
+{
+    template <typename state> using apply = Identity<Result<ResultType::FAILURE, T, state>>;
+};
 
+template <typename F, typename... args>
+using call = typename F::template apply<args...>::type;
+
+template <typename parser, typename input>
+using parse = call<parser, input>;
+
+template <typename parser, typename input>
+using run_parser = typename parse<parser, State<input, Position<0>>>::value;
 
 
 
 // Some Value that fell out of a parser
-//template <typename T, T x> struct Value {} 
-//
-//template <typename T, T x> struct Printer<Value<T, x>>
-//{
-//    static std::ostream& Print(std::ostream& output)
-//    {
-//        return output << std::boolalpha << x;
-//    }
-//};
+template <typename T, T x> struct Value {};
+
+template <typename T, T x> struct Printer<Value<T, x>>
+{
+    static std::ostream& Print(std::ostream& output)
+    {
+        return output << std::boolalpha << x;
+    }
+};
 
 
 #endif /*__PARSER_HPP*/
